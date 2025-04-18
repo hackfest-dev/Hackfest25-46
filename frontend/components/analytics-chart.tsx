@@ -104,4 +104,3 @@ export function AnalyticsChart() {
     </ChartContainer>
   )
 }
-

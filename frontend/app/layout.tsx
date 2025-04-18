@@ -15,13 +15,14 @@ export default function RootLayout({
       <head>
         <title>AI Surveillance Dashboard</title>
         <meta name="description" content="AI-powered surveillance system" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body className="dark">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <SidebarProvider>
-            <div className="flex h-screen">
+            <div className="flex h-screen w-full overflow-hidden">
               <AppSidebar />
-              <main className="flex-1 overflow-auto bg-background">{children}</main>
+              <main className="flex-1 w-full overflow-auto bg-background">{children}</main>
             </div>
             <Toaster />
           </SidebarProvider>

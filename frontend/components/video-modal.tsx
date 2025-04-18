@@ -130,4 +130,3 @@ export function VideoModal({ isOpen, onClose, video }: VideoModalProps) {
     </Dialog>
   )
 }
-

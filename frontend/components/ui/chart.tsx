@@ -33,4 +33,3 @@ const ChartTooltipContent = ({ content }: ChartTooltipContentProps) => {
 ChartTooltipContent.displayName = "ChartTooltipContent"
 
 export { Chart, ChartContainer, ChartTooltip, ChartTooltipContent }
-

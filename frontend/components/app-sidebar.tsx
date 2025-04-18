@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarRail,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -70,7 +71,7 @@ export function AppSidebar() {
   ]
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
@@ -143,7 +144,7 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   )
 }
-
