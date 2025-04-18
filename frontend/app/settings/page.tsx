@@ -1,253 +1,181 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Key,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-  RefreshCw,
-  Smartphone,
-  Mail,
-  Globe,
-  Clock,
-  User,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Info,
-  Plus,
-  Filter,
-} from "lucide-react"
+import { Save, Camera, Trash2, Info, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
-import { SecurityChart } from "@/components/security-chart"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { StorageChart } from "@/components/storage-chart"
 
-type AuditLogEntry = {
+type CameraType = {
   id: string
-  action: string
-  user: string
-  timestamp: Date
-  ip: string
-  status: "success" | "failure"
-  details?: string
+  name: string
+  location: string
+  resolution: string
+  fps: number
+  status: "online" | "offline"
+  storage: number
 }
 
-const mockAuditLogs: AuditLogEntry[] = [
+const mockCameras: CameraType[] = [
   {
-    id: "log1",
-    action: "Login",
-    user: "admin@example.com",
-    timestamp: new Date(2023, 3, 15, 9, 30),
-    ip: "192.168.1.1",
-    status: "success",
+    id: "cam1",
+    name: "Main Entrance",
+    location: "Front Door",
+    resolution: "1080p",
+    fps: 30,
+    status: "online",
+    storage: 15.2,
   },
   {
-    id: "log2",
-    action: "Password Change",
-    user: "john@example.com",
-    timestamp: new Date(2023, 3, 15, 10, 15),
-    ip: "192.168.1.2",
-    status: "success",
+    id: "cam2",
+    name: "Parking Lot",
+    location: "North Side",
+    resolution: "1080p",
+    fps: 15,
+    status: "online",
+    storage: 12.8,
   },
   {
-    id: "log3",
-    action: "Login",
-    user: "jane@example.com",
-    timestamp: new Date(2023, 3, 15, 11, 20),
-    ip: "192.168.1.3",
-    status: "success",
+    id: "cam3",
+    name: "Lobby",
+    location: "Reception Area",
+    resolution: "4K",
+    fps: 30,
+    status: "online",
+    storage: 28.5,
   },
   {
-    id: "log4",
-    action: "Login Attempt",
-    user: "robert@example.com",
-    timestamp: new Date(2023, 3, 15, 12, 45),
-    ip: "192.168.1.4",
-    status: "failure",
-    details: "Invalid password",
+    id: "cam4",
+    name: "Storage Room",
+    location: "Basement",
+    resolution: "720p",
+    fps: 15,
+    status: "online",
+    storage: 8.7,
   },
   {
-    id: "log5",
-    action: "User Created",
-    user: "admin@example.com",
-    timestamp: new Date(2023, 3, 15, 14, 10),
-    ip: "192.168.1.1",
-    status: "success",
-    details: "Created user emily@example.com",
+    id: "cam5",
+    name: "Conference Room",
+    location: "2nd Floor",
+    resolution: "1080p",
+    fps: 30,
+    status: "online",
+    storage: 14.3,
   },
   {
-    id: "log6",
-    action: "Settings Changed",
-    user: "admin@example.com",
-    timestamp: new Date(2023, 3, 15, 15, 30),
-    ip: "192.168.1.1",
-    status: "success",
-    details: "Updated password policy",
-  },
-  {
-    id: "log7",
-    action: "Login Attempt",
-    user: "unknown",
-    timestamp: new Date(2023, 3, 15, 16, 45),
-    ip: "203.0.113.1",
-    status: "failure",
-    details: "User not found",
-  },
-  {
-    id: "log8",
-    action: "2FA Enabled",
-    user: "david@example.com",
-    timestamp: new Date(2023, 3, 15, 17, 20),
-    ip: "192.168.1.5",
-    status: "success",
+    id: "cam6",
+    name: "Side Entrance",
+    location: "East Wing",
+    resolution: "1080p",
+    fps: 15,
+    status: "offline",
+    storage: 0,
   },
 ]
 
-export default function SecurityPage() {
-  const [passwordLength, setPasswordLength] = useState<number[]>([12])
-  const [showPassword, setShowPassword] = useState(false)
-  const [passwordExample, setPasswordExample] = useState("P@ssw0rd!2023")
-  const [passwordStrength, setPasswordStrength] = useState(85)
+export default function SettingsPage() {
+  const [timeZone, setTimeZone] = useState("America/New_York")
+  const [dateFormat, setDateFormat] = useState("MM/DD/YYYY")
+  const [timeFormat, setTimeFormat] = useState("12h")
+  const [language, setLanguage] = useState("en-US")
+  const [retentionDays, setRetentionDays] = useState<number[]>([30])
+  const [totalStorage, setTotalStorage] = useState(500)
+  const [usedStorage, setUsedStorage] = useState(128.6)
 
-  const handlePasswordLengthChange = (value: number[]) => {
-    setPasswordLength(value)
-  }
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
+  const handleRetentionChange = (value: number[]) => {
+    setRetentionDays(value)
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Security</h1>
-        <p className="text-muted-foreground">Configure system security settings and review audit logs</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground">Configure system settings and preferences</p>
       </div>
 
-      <Tabs defaultValue="password-policy">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-          <TabsTrigger value="password-policy">Password Policy</TabsTrigger>
-          <TabsTrigger value="two-factor">Two-Factor Auth</TabsTrigger>
-          <TabsTrigger value="ip-restrictions">IP Restrictions</TabsTrigger>
-          <TabsTrigger value="audit-logs">Audit Logs</TabsTrigger>
+      <Tabs defaultValue="general">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="cameras">Cameras</TabsTrigger>
+          <TabsTrigger value="storage">Storage</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        <TabsContent value="password-policy" className="mt-6 space-y-6">
+        <TabsContent value="general" className="mt-6 space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Password Requirements</CardTitle>
-                <CardDescription>Configure the password requirements for all users</CardDescription>
+                <CardTitle>Regional Settings</CardTitle>
+                <CardDescription>Configure time zone, date and time formats</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password-length">Minimum Length ({passwordLength[0]} characters)</Label>
-                    <span className="text-sm text-muted-foreground">Recommended: 12+</span>
-                  </div>
-                  <Slider
-                    id="password-length"
-                    min={8}
-                    max={24}
-                    step={1}
-                    value={passwordLength}
-                    onValueChange={handlePasswordLengthChange}
-                  />
+                  <Label htmlFor="timezone">Time Zone</Label>
+                  <Select value={timeZone} onValueChange={setTimeZone}>
+                    <SelectTrigger id="timezone">
+                      <SelectValue placeholder="Select time zone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                      <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                      <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                      <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                      <SelectItem value="Europe/London">London (GMT)</SelectItem>
+                      <SelectItem value="Europe/Paris">Paris (CET)</SelectItem>
+                      <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="uppercase">Require uppercase letters</Label>
-                      <Badge variant="outline" className="text-xs">
-                        A-Z
-                      </Badge>
-                    </div>
-                    <Switch id="uppercase" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="lowercase">Require lowercase letters</Label>
-                      <Badge variant="outline" className="text-xs">
-                        a-z
-                      </Badge>
-                    </div>
-                    <Switch id="lowercase" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="numbers">Require numbers</Label>
-                      <Badge variant="outline" className="text-xs">
-                        0-9
-                      </Badge>
-                    </div>
-                    <Switch id="numbers" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="special">Require special characters</Label>
-                      <Badge variant="outline" className="text-xs">
-                        !@#$%
-                      </Badge>
-                    </div>
-                    <Switch id="special" defaultChecked />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date-format">Date Format</Label>
+                  <Select value={dateFormat} onValueChange={setDateFormat}>
+                    <SelectTrigger id="date-format">
+                      <SelectValue placeholder="Select date format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                      <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      <SelectItem value="MMM D, YYYY">MMM D, YYYY</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Separator />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="expiration">Password expiration</Label>
-                    <Select defaultValue="90">
-                      <SelectTrigger id="expiration" className="w-[180px]">
-                        <SelectValue placeholder="Select expiration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30 days</SelectItem>
-                        <SelectItem value="60">60 days</SelectItem>
-                        <SelectItem value="90">90 days</SelectItem>
-                        <SelectItem value="180">180 days</SelectItem>
-                        <SelectItem value="never">Never</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="history">Password history</Label>
-                    <Select defaultValue="5">
-                      <SelectTrigger id="history" className="w-[180px]">
-                        <SelectValue placeholder="Select history" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">Remember 3 passwords</SelectItem>
-                        <SelectItem value="5">Remember 5 passwords</SelectItem>
-                        <SelectItem value="10">Remember 10 passwords</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label htmlFor="lockout">Account lockout</Label>
-                      <p className="text-xs text-muted-foreground">After failed login attempts</p>
-                    </div>
-                    <Select defaultValue="5">
-                      <SelectTrigger id="lockout" className="w-[180px]">
-                        <SelectValue placeholder="Select threshold" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">3 attempts</SelectItem>
-                        <SelectItem value="5">5 attempts</SelectItem>
-                        <SelectItem value="10">10 attempts</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time-format">Time Format</Label>
+                  <Select value={timeFormat} onValueChange={setTimeFormat}>
+                    <SelectTrigger id="time-format">
+                      <SelectValue placeholder="Select time format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12h">12-hour (AM/PM)</SelectItem>
+                      <SelectItem value="24h">24-hour</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en-US">English (US)</SelectItem>
+                      <SelectItem value="en-GB">English (UK)</SelectItem>
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                      <SelectItem value="de">German</SelectItem>
+                      <SelectItem value="ja">Japanese</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -258,82 +186,419 @@ export default function SecurityPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Password Strength Tester</CardTitle>
-                <CardDescription>Test password strength against current policy</CardDescription>
+                <CardTitle>System Settings</CardTitle>
+                <CardDescription>Configure general system behavior</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="auto-logout">Auto Logout</Label>
+                      <p className="text-xs text-muted-foreground">Automatically log out inactive users</p>
+                    </div>
+                    <Switch id="auto-logout" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="inactivity-timeout">Inactivity Timeout</Label>
+                    <Select defaultValue="30">
+                      <SelectTrigger id="inactivity-timeout" className="w-[180px]">
+                        <SelectValue placeholder="Select timeout" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="120">2 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="dark-mode">Dark Mode</Label>
+                      <p className="text-xs text-muted-foreground">Use dark theme for the interface</p>
+                    </div>
+                    <Switch id="dark-mode" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="animations">Interface Animations</Label>
+                      <p className="text-xs text-muted-foreground">Enable smooth animations in the UI</p>
+                    </div>
+                    <Switch id="animations" defaultChecked />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="analytics">Usage Analytics</Label>
+                      <p className="text-xs text-muted-foreground">Collect anonymous usage data</p>
+                    </div>
+                    <Switch id="analytics" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="crash-reports">Crash Reports</Label>
+                      <p className="text-xs text-muted-foreground">Send anonymous crash reports</p>
+                    </div>
+                    <Switch id="crash-reports" defaultChecked />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">Reset to Defaults</Button>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+        <TabsContent value="cameras" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Camera Settings</CardTitle>
+                <CardDescription>Configure camera resolution, frame rate, and recording settings</CardDescription>
+              </div>
+              <Button>
+                <Camera className="mr-2 h-4 w-4" /> Add Camera
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Camera</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Resolution</TableHead>
+                    <TableHead>Frame Rate</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockCameras.map((camera) => (
+                    <TableRow key={camera.id}>
+                      <TableCell className="font-medium">{camera.name}</TableCell>
+                      <TableCell>{camera.location}</TableCell>
+                      <TableCell>
+                        <Select defaultValue={camera.resolution}>
+                          <SelectTrigger className="w-[100px]">
+                            <SelectValue placeholder="Resolution" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="720p">720p</SelectItem>
+                            <SelectItem value="1080p">1080p</SelectItem>
+                            <SelectItem value="4K">4K</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select defaultValue={camera.fps.toString()}>
+                          <SelectTrigger className="w-[80px]">
+                            <SelectValue placeholder="FPS" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="15">15 FPS</SelectItem>
+                            <SelectItem value="30">30 FPS</SelectItem>
+                            <SelectItem value="60">60 FPS</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        {camera.status === "online" ? (
+                          <Badge className="bg-green-500">Online</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-red-500 text-red-500">
+                            Offline
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm">
+                            Edit
+                          </Button>
+                          <Button variant="outline" size="sm" className="text-red-500">
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <div className="text-sm text-muted-foreground">
+                {mockCameras.filter((c) => c.status === "online").length} of {mockCameras.length} cameras online
+              </div>
+              <Button>
+                <Save className="mr-2 h-4 w-4" /> Save All Changes
+              </Button>
+            </CardFooter>
+          </Card>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recording Settings</CardTitle>
+                <CardDescription>Configure when and how cameras record footage</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="continuous-recording">Continuous Recording</Label>
+                      <p className="text-xs text-muted-foreground">Record footage continuously</p>
+                    </div>
+                    <Switch id="continuous-recording" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="motion-detection">Motion Detection</Label>
+                      <p className="text-xs text-muted-foreground">Record only when motion is detected</p>
+                    </div>
+                    <Switch id="motion-detection" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="scheduled-recording">Scheduled Recording</Label>
+                      <p className="text-xs text-muted-foreground">Record during specified time periods</p>
+                    </div>
+                    <Switch id="scheduled-recording" />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <Label htmlFor="motion-sensitivity">Motion Sensitivity</Label>
+                  <Slider id="motion-sensitivity" defaultValue={[75]} max={100} step={1} />
+                  <div className="flex justify-between">
+                    <span className="text-xs text-muted-foreground">Low</span>
+                    <span className="text-xs text-muted-foreground">High</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pre-record">Pre-Record Time</Label>
+                  <Select defaultValue="10">
+                    <SelectTrigger id="pre-record">
+                      <SelectValue placeholder="Select pre-record time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5 seconds</SelectItem>
+                      <SelectItem value="10">10 seconds</SelectItem>
+                      <SelectItem value="30">30 seconds</SelectItem>
+                      <SelectItem value="60">1 minute</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Amount of footage to save before motion is detected</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="post-record">Post-Record Time</Label>
+                  <Select defaultValue="30">
+                    <SelectTrigger id="post-record">
+                      <SelectValue placeholder="Select post-record time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10 seconds</SelectItem>
+                      <SelectItem value="30">30 seconds</SelectItem>
+                      <SelectItem value="60">1 minute</SelectItem>
+                      <SelectItem value="300">5 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Amount of footage to save after motion stops</p>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">Reset to Defaults</Button>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Quality Settings</CardTitle>
+                <CardDescription>Configure video quality and compression settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="password-test">Test Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password-test"
-                      type={showPassword ? "text" : "password"}
-                      value={passwordExample}
-                      onChange={(e) => setPasswordExample(e.target.value)}
-                      className="pr-10"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
+                  <Label htmlFor="video-quality">Default Video Quality</Label>
+                  <Select defaultValue="high">
+                    <SelectTrigger id="video-quality">
+                      <SelectValue placeholder="Select video quality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low (720p, 15fps)</SelectItem>
+                      <SelectItem value="medium">Medium (1080p, 15fps)</SelectItem>
+                      <SelectItem value="high">High (1080p, 30fps)</SelectItem>
+                      <SelectItem value="ultra">Ultra (4K, 30fps)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="compression">Compression Level</Label>
+                  <Slider id="compression" defaultValue={[30]} max={100} step={1} />
+                  <div className="flex justify-between">
+                    <span className="text-xs text-muted-foreground">Higher Quality</span>
+                    <span className="text-xs text-muted-foreground">Smaller Size</span>
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bitrate">Bitrate (Mbps)</Label>
+                  <Select defaultValue="8">
+                    <SelectTrigger id="bitrate">
+                      <SelectValue placeholder="Select bitrate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2">2 Mbps</SelectItem>
+                      <SelectItem value="4">4 Mbps</SelectItem>
+                      <SelectItem value="8">8 Mbps</SelectItem>
+                      <SelectItem value="16">16 Mbps</SelectItem>
+                      <SelectItem value="32">32 Mbps</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="audio-recording">Audio Recording</Label>
+                      <p className="text-xs text-muted-foreground">Record audio with video footage</p>
+                    </div>
+                    <Switch id="audio-recording" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="timestamp">Show Timestamp</Label>
+                      <p className="text-xs text-muted-foreground">Display date and time on footage</p>
+                    </div>
+                    <Switch id="timestamp" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="camera-name">Show Camera Name</Label>
+                      <p className="text-xs text-muted-foreground">Display camera name on footage</p>
+                    </div>
+                    <Switch id="camera-name" defaultChecked />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">Reset to Defaults</Button>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+        <TabsContent value="storage" className="mt-6 space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Storage Management</CardTitle>
+                <CardDescription>Configure storage capacity and retention policies</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Password Strength</Label>
-                    <span className="text-sm font-medium">
-                      {passwordStrength < 40 ? "Weak" : passwordStrength < 70 ? "Moderate" : "Strong"}
-                    </span>
+                    <Label>Storage Usage</Label>
+                    <Badge variant="outline">
+                      {usedStorage.toFixed(1)} GB / {totalStorage} GB
+                    </Badge>
                   </div>
-                  <Progress value={passwordStrength} className="h-2" />
+                  <Progress value={(usedStorage / totalStorage) * 100} className="h-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {(((totalStorage - usedStorage) / totalStorage) * 100).toFixed(1)}% free space available
+                  </p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Requirements Check</Label>
-                  <div className="space-y-2 rounded-md border p-3">
-                    <div className="flex items-center gap-2">
-                      {passwordExample.length >= passwordLength[0] ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">Minimum length ({passwordLength[0]} characters)</span>
+                  <Label htmlFor="retention-days">Retention Period ({retentionDays[0]} days)</Label>
+                  <Slider
+                    id="retention-days"
+                    min={7}
+                    max={90}
+                    step={1}
+                    value={retentionDays}
+                    onValueChange={handleRetentionChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Footage older than {retentionDays[0]} days will be automatically deleted
+                  </p>
+                </div>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="auto-delete">Auto Delete Old Footage</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically delete footage older than retention period
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {/[A-Z]/.test(passwordExample) ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">Contains uppercase letters</span>
+                    <Switch id="auto-delete" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="low-space-alert">Low Space Alert</Label>
+                      <p className="text-xs text-muted-foreground">Send alert when storage space is low</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {/[a-z]/.test(passwordExample) ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">Contains lowercase letters</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {/[0-9]/.test(passwordExample) ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">Contains numbers</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {/[^A-Za-z0-9]/.test(passwordExample) ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">Contains special characters</span>
-                    </div>
+                    <Switch id="low-space-alert" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="low-space-threshold">Low Space Threshold</Label>
+                    <Select defaultValue="10">
+                      <SelectTrigger id="low-space-threshold" className="w-[100px]">
+                        <SelectValue placeholder="Select threshold" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5%</SelectItem>
+                        <SelectItem value="10">10%</SelectItem>
+                        <SelectItem value="15">15%</SelectItem>
+                        <SelectItem value="20">20%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <Trash2 className="h-4 w-4" /> Clear All Footage
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>This action cannot be undone</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Storage Usage</CardTitle>
+                <CardDescription>View storage usage by camera and date</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <StorageChart />
+                <div className="space-y-2">
+                  <Label>Storage by Camera</Label>
+                  <div className="space-y-2">
+                    {mockCameras
+                      .filter((c) => c.status === "online")
+                      .sort((a, b) => b.storage - a.storage)
+                      .map((camera) => (
+                        <div key={camera.id} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">{camera.name}</span>
+                            <span className="text-sm font-medium">{camera.storage.toFixed(1)} GB</span>
+                          </div>
+                          <Progress value={(camera.storage / usedStorage) * 100} className="h-1" />
+                        </div>
+                      ))}
                   </div>
                 </div>
               </CardContent>
@@ -341,7 +606,7 @@ export default function SecurityPage() {
                 <div className="flex w-full items-center justify-between rounded-md bg-muted p-3">
                   <div className="flex items-center gap-2">
                     <Info className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm">Passwords should be unique and not used on other sites</span>
+                    <span className="text-sm">Storage usage is updated hourly</span>
                   </div>
                 </div>
               </CardFooter>
@@ -350,452 +615,267 @@ export default function SecurityPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Security Metrics</CardTitle>
-              <CardDescription>Overview of security events and password-related metrics</CardDescription>
+              <CardTitle>Storage Locations</CardTitle>
+              <CardDescription>Configure where footage is stored</CardDescription>
             </CardHeader>
-            <CardContent>
-              <SecurityChart />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="two-factor" className="mt-6 space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Two-Factor Authentication</CardTitle>
-                <CardDescription>Configure two-factor authentication settings for users</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="require-2fa">Require 2FA for all users</Label>
-                      <p className="text-xs text-muted-foreground">
-                        All users will be required to set up 2FA on next login
-                      </p>
-                    </div>
-                    <Switch id="require-2fa" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="require-admin-2fa">Require 2FA for admins</Label>
-                      <p className="text-xs text-muted-foreground">All admin users will be required to set up 2FA</p>
-                    </div>
-                    <Switch id="require-admin-2fa" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="remember-device">Remember device</Label>
-                      <p className="text-xs text-muted-foreground">Allow users to remember devices for 2FA</p>
-                    </div>
-                    <Switch id="remember-device" defaultChecked />
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-4">
-                  <Label>Allowed 2FA Methods</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Smartphone className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Authenticator App</p>
-                          <p className="text-sm text-muted-foreground">
-                            Google Authenticator, Microsoft Authenticator, etc.
-                          </p>
-                        </div>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Mail className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Email</p>
-                          <p className="text-sm text-muted-foreground">Send verification code via email</p>
-                        </div>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Key className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Security Keys</p>
-                          <p className="text-sm text-muted-foreground">YubiKey, Google Titan, etc.</p>
-                        </div>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline">Reset to Defaults</Button>
-                <Button>Save Changes</Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>2FA Status</CardTitle>
-                <CardDescription>Overview of two-factor authentication usage</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 rounded-md border p-4">
-                    <p className="text-sm text-muted-foreground">Users with 2FA</p>
-                    <div className="flex items-end justify-between">
-                      <p className="text-2xl font-bold">5</p>
-                      <Badge className="bg-green-500">62.5%</Badge>
-                    </div>
-                  </div>
-                  <div className="space-y-2 rounded-md border p-4">
-                    <p className="text-sm text-muted-foreground">Users without 2FA</p>
-                    <div className="flex items-end justify-between">
-                      <p className="text-2xl font-bold">3</p>
-                      <Badge variant="outline" className="border-red-500 text-red-500">
-                        37.5%
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>2FA Methods Used</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Smartphone className="h-5 w-5 text-primary" />
-                        <span>Authenticator App</span>
-                      </div>
-                      <Badge>4 users</Badge>
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Mail className="h-5 w-5 text-primary" />
-                        <span>Email</span>
-                      </div>
-                      <Badge>1 user</Badge>
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Key className="h-5 w-5 text-primary" />
-                        <span>Security Keys</span>
-                      </div>
-                      <Badge>0 users</Badge>
-                    </div>
-                  </div>
-                </div>
-                <div className="rounded-md bg-muted p-3">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 text-yellow-500" />
-                    <div className="space-y-1">
-                      <p className="font-medium">Security Recommendation</p>
-                      <p className="text-sm text-muted-foreground">
-                        Enforce 2FA for all users to improve security. 3 users still don't have 2FA enabled.
-                      </p>
-                      <Button size="sm" variant="outline" className="mt-2">
-                        Enforce Now
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        <TabsContent value="ip-restrictions" className="mt-6 space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>IP Address Restrictions</CardTitle>
-                <CardDescription>Configure IP address restrictions for system access</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="enable-ip-restrictions">Enable IP restrictions</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Restrict access to specific IP addresses or ranges
-                      </p>
-                    </div>
-                    <Switch id="enable-ip-restrictions" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="admin-ip-restrictions">Admin IP restrictions</Label>
-                      <p className="text-xs text-muted-foreground">Apply stricter IP restrictions for admin users</p>
-                    </div>
-                    <Switch id="admin-ip-restrictions" defaultChecked />
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>IP Whitelist</Label>
-                    <Button variant="outline" size="sm">
-                      <Plus className="mr-2 h-4 w-4" /> Add IP
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">192.168.1.0/24</p>
-                          <p className="text-sm text-muted-foreground">Office Network</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">10.0.0.0/8</p>
-                          <p className="text-sm text-muted-foreground">VPN Network</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>IP Blacklist</Label>
-                    <Button variant="outline" size="sm">
-                      <Plus className="mr-2 h-4 w-4" /> Add IP
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-red-500" />
-                        <div>
-                          <p className="font-medium">203.0.113.0/24</p>
-                          <p className="text-sm text-muted-foreground">Known malicious range</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline">Reset to Defaults</Button>
-                <Button>Save Changes</Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Geolocation Restrictions</CardTitle>
-                <CardDescription>Restrict access based on geographic location</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="enable-geo-restrictions">Enable geolocation restrictions</Label>
-                      <p className="text-xs text-muted-foreground">Restrict access to specific countries or regions</p>
-                    </div>
-                    <Switch id="enable-geo-restrictions" />
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Allowed Countries</Label>
-                    <Select defaultValue="allowlist">
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select mode" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="allowlist">Allow selected</SelectItem>
-                        <SelectItem value="blocklist">Block selected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary" />
-                        <span>United States</span>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary" />
-                        <span>Canada</span>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between rounded-md border p-3">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary" />
-                        <span>United Kingdom</span>
-                      </div>
-                      <Button variant="ghost" size="icon">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <Plus className="mr-2 h-4 w-4" /> Add Country
-                  </Button>
-                </div>
-                <div className="rounded-md bg-muted p-3">
-                  <div className="flex items-start gap-3">
-                    <Info className="mt-0.5 h-5 w-5 text-blue-500" />
-                    <div className="space-y-1">
-                      <p className="font-medium">Geolocation Accuracy</p>
-                      <p className="text-sm text-muted-foreground">
-                        Geolocation is based on IP address and may not be 100% accurate. Consider using additional
-                        authentication methods for sensitive operations.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline">Reset to Defaults</Button>
-                <Button>Save Changes</Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </TabsContent>
-        <TabsContent value="audit-logs" className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Audit Logs</CardTitle>
-              <CardDescription>Review system activity and security events</CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-center gap-2">
-                    <Input placeholder="Search logs..." className="max-w-sm" />
-                    <Button variant="outline" size="icon">
-                      <Filter className="h-4 w-4" />
-                    </Button>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="local-storage">Local Storage</Label>
+                    <p className="text-xs text-muted-foreground">Store footage on local drives</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Filter by action" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Actions</SelectItem>
-                        <SelectItem value="login">Login</SelectItem>
-                        <SelectItem value="settings">Settings</SelectItem>
-                        <SelectItem value="user">User Management</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="success">Success</SelectItem>
-                        <SelectItem value="failure">Failure</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline">
-                      <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                    </Button>
-                  </div>
-                </div>
-                <div className="overflow-auto rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">Time</TableHead>
-                        <TableHead className="w-[150px]">Action</TableHead>
-                        <TableHead className="w-[150px]">User</TableHead>
-                        <TableHead className="w-[120px]">IP Address</TableHead>
-                        <TableHead>Details</TableHead>
-                        <TableHead className="w-[100px]">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {mockAuditLogs.map((log) => (
-                        <TableRow key={log.id}>
-                          <TableCell className="font-mono text-xs">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span>
-                                {log.timestamp.toLocaleDateString()}{" "}
-                                {log.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                log.action.includes("Login")
-                                  ? "border-blue-500 text-blue-500"
-                                  : log.action.includes("Password")
-                                    ? "border-purple-500 text-purple-500"
-                                    : log.action.includes("User")
-                                      ? "border-green-500 text-green-500"
-                                      : "border-orange-500 text-orange-500"
-                              }
-                            >
-                              {log.action}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <User className="h-3 w-3 text-muted-foreground" />
-                              <span>{log.user}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">{log.ip}</TableCell>
-                          <TableCell>{log.details || <span className="text-muted-foreground">—</span>}</TableCell>
-                          <TableCell>
-                            {log.status === "success" ? (
-                              <Badge className="bg-green-500">Success</Badge>
-                            ) : (
-                              <Badge variant="destructive">Failure</Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <Switch id="local-storage" defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">Showing 8 of 256 entries</div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" disabled>
-                      Previous
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Next
+                  <div className="space-y-0.5">
+                    <Label htmlFor="cloud-backup">Cloud Backup</Label>
+                    <p className="text-xs text-muted-foreground">Backup footage to cloud storage</p>
+                  </div>
+                  <Switch id="cloud-backup" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cloud-provider">Cloud Provider</Label>
+                  <Select defaultValue="aws">
+                    <SelectTrigger id="cloud-provider" className="w-[180px]">
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="aws">Amazon S3</SelectItem>
+                      <SelectItem value="azure">Azure Blob Storage</SelectItem>
+                      <SelectItem value="gcp">Google Cloud Storage</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="rounded-md bg-muted p-3">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 text-yellow-500" />
+                  <div className="space-y-1">
+                    <p className="font-medium">Cloud Storage Not Configured</p>
+                    <p className="text-sm text-muted-foreground">
+                      Cloud backup is enabled but not configured. Please configure your cloud storage settings.
+                    </p>
+                    <Button size="sm" variant="outline" className="mt-2">
+                      Configure Cloud Storage
                     </Button>
                   </div>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline">
-                <FileText className="mr-2 h-4 w-4" /> Export Logs
-              </Button>
-              <Button variant="destructive">Clear Logs</Button>
+              <Button variant="outline">Reset to Defaults</Button>
+              <Button>Save Changes</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="notifications" className="mt-6 space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>Configure how and when you receive notifications</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="email-notifications">Email Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Receive notifications via email</p>
+                    </div>
+                    <Switch id="email-notifications" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="push-notifications">Push Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Receive notifications on your device</p>
+                    </div>
+                    <Switch id="push-notifications" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="sms-notifications">SMS Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Receive notifications via SMS</p>
+                    </div>
+                    <Switch id="sms-notifications" />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <Label>Notification Frequency</Label>
+                  <Select defaultValue="immediate">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="immediate">Immediate</SelectItem>
+                      <SelectItem value="hourly">Hourly Digest</SelectItem>
+                      <SelectItem value="daily">Daily Digest</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Quiet Hours</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="quiet-start">Start Time</Label>
+                      <Select defaultValue="22">
+                        <SelectTrigger id="quiet-start">
+                          <SelectValue placeholder="Select time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 24 }).map((_, i) => (
+                            <SelectItem key={i} value={i.toString()}>
+                              {i === 0 ? "12 AM" : i < 12 ? `${i} AM` : i === 12 ? "12 PM" : `${i - 12} PM`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="quiet-end">End Time</Label>
+                      <Select defaultValue="7">
+                        <SelectTrigger id="quiet-end">
+                          <SelectValue placeholder="Select time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 24 }).map((_, i) => (
+                            <SelectItem key={i} value={i.toString()}>
+                              {i === 0 ? "12 AM" : i < 12 ? `${i} AM` : i === 12 ? "12 PM" : `${i - 12} PM`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Only critical alerts will be sent during quiet hours</p>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">Reset to Defaults</Button>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Alert Types</CardTitle>
+                <CardDescription>Configure which events trigger notifications</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="motion-alerts">Motion Detection</Label>
+                      <p className="text-xs text-muted-foreground">Alert when motion is detected</p>
+                    </div>
+                    <Switch id="motion-alerts" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="person-alerts">Person Detection</Label>
+                      <p className="text-xs text-muted-foreground">Alert when a person is detected</p>
+                    </div>
+                    <Switch id="person-alerts" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="vehicle-alerts">Vehicle Detection</Label>
+                      <p className="text-xs text-muted-foreground">Alert when a vehicle is detected</p>
+                    </div>
+                    <Switch id="vehicle-alerts" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="camera-offline">Camera Offline</Label>
+                      <p className="text-xs text-muted-foreground">Alert when a camera goes offline</p>
+                    </div>
+                    <Switch id="camera-offline" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="storage-alerts">Storage Alerts</Label>
+                      <p className="text-xs text-muted-foreground">Alert when storage is running low</p>
+                    </div>
+                    <Switch id="storage-alerts" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="system-alerts">System Alerts</Label>
+                      <p className="text-xs text-muted-foreground">Alert for system issues and updates</p>
+                    </div>
+                    <Switch id="system-alerts" defaultChecked />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">Reset to Defaults</Button>
+                <Button>Save Changes</Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Recipients</CardTitle>
+              <CardDescription>Configure who receives notifications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Alert Level</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Admin User</TableCell>
+                    <TableCell>admin@example.com</TableCell>
+                    <TableCell>+1 (555) 123-4567</TableCell>
+                    <TableCell>
+                      <Badge>All Alerts</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Security Team</TableCell>
+                    <TableCell>security@example.com</TableCell>
+                    <TableCell>+1 (555) 987-6543</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">Critical Only</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">IT Support</TableCell>
+                    <TableCell>it@example.com</TableCell>
+                    <TableCell>—</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">System Alerts</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter>
+              <Button className="ml-auto">Add Recipient</Button>
             </CardFooter>
           </Card>
         </TabsContent>

@@ -4,15 +4,15 @@ import { Chart, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/comp
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
 const data = [
-  { date: "Apr 10", loginSuccess: 24, loginFailure: 3, passwordReset: 1 },
-  { date: "Apr 11", loginSuccess: 18, loginFailure: 2, passwordReset: 0 },
-  { date: "Apr 12", loginSuccess: 22, loginFailure: 1, passwordReset: 2 },
-  { date: "Apr 13", loginSuccess: 25, loginFailure: 4, passwordReset: 1 },
-  { date: "Apr 14", loginSuccess: 30, loginFailure: 2, passwordReset: 3 },
-  { date: "Apr 15", loginSuccess: 28, loginFailure: 5, passwordReset: 2 },
+  { date: "Apr 10", critical: 1, high: 2, medium: 3, low: 2 },
+  { date: "Apr 11", critical: 0, high: 1, medium: 2, low: 3 },
+  { date: "Apr 12", critical: 0, high: 0, medium: 2, low: 1 },
+  { date: "Apr 13", critical: 2, high: 1, medium: 0, low: 1 },
+  { date: "Apr 14", critical: 0, high: 2, medium: 1, low: 0 },
+  { date: "Apr 15", critical: 2, high: 1, medium: 1, low: 1 },
 ]
 
-export function SecurityChart() {
+export function AlertsChart() {
   return (
     <ChartContainer
       className="h-[300px] w-full"
@@ -29,16 +29,20 @@ export function SecurityChart() {
                         <span className="font-bold text-muted-foreground">{payload[0].payload.date}</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">Successful Logins</span>
-                        <span className="font-bold text-green-500">{payload[0].payload.loginSuccess}</span>
+                        <span className="text-[0.70rem] uppercase text-muted-foreground">Critical</span>
+                        <span className="font-bold text-red-500">{payload[0].payload.critical}</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">Failed Logins</span>
-                        <span className="font-bold text-red-500">{payload[0].payload.loginFailure}</span>
+                        <span className="text-[0.70rem] uppercase text-muted-foreground">High</span>
+                        <span className="font-bold text-orange-500">{payload[0].payload.high}</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">Password Resets</span>
-                        <span className="font-bold text-blue-500">{payload[0].payload.passwordReset}</span>
+                        <span className="text-[0.70rem] uppercase text-muted-foreground">Medium</span>
+                        <span className="font-bold text-yellow-500">{payload[0].payload.medium}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[0.70rem] uppercase text-muted-foreground">Low</span>
+                        <span className="font-bold text-blue-500">{payload[0].payload.low}</span>
                       </div>
                     </div>
                   </div>
@@ -68,9 +72,10 @@ export function SecurityChart() {
               axisLine={false}
               tickFormatter={(value) => `${value}`}
             />
-            <Bar dataKey="loginSuccess" fill="hsl(142, 76%, 36%)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="loginFailure" fill="hsl(0, 84%, 60%)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="passwordReset" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="critical" stackId="a" fill="hsl(0, 84%, 60%)" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="high" stackId="a" fill="hsl(30, 84%, 60%)" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="medium" stackId="a" fill="hsl(60, 84%, 60%)" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="low" stackId="a" fill="hsl(210, 84%, 60%)" radius={[0, 0, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Chart>
