@@ -15,6 +15,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { StorageChart } from "@/components/storage-chart"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { AddCameraForm } from "@/components/add-camera-form"
 
 type CameraType = {
   id: string
@@ -262,9 +271,22 @@ export default function SettingsPage() {
                 <CardTitle>Camera Settings</CardTitle>
                 <CardDescription>Configure camera resolution, frame rate, and recording settings</CardDescription>
               </div>
-              <Button>
-                <Camera className="mr-2 h-4 w-4" /> Add Camera
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Camera className="mr-2 h-4 w-4" /> Add Camera
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New Camera</DialogTitle>
+                    <DialogDescription>
+                      Configure a new camera for your surveillance system.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <AddCameraForm />
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent>
               <Table>
@@ -813,73 +835,72 @@ export default function SettingsPage() {
                 <Button>Save Changes</Button>
               </CardFooter>
             </Card>
-          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Recipients</CardTitle>
-              <CardDescription>Configure who receives notifications</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Alert Level</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">Admin User</TableCell>
-                    <TableCell>admin@example.com</TableCell>
-                    <TableCell>+1 (555) 123-4567</TableCell>
-                    <TableCell>
-                      <Badge>All Alerts</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Security Team</TableCell>
-                    <TableCell>security@example.com</TableCell>
-                    <TableCell>+1 (555) 987-6543</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">Critical Only</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">IT Support</TableCell>
-                    <TableCell>it@example.com</TableCell>
-                    <TableCell>—</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">System Alerts</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-            <CardFooter>
-              <Button className="ml-auto">Add Recipient</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Recipients</CardTitle>
+                <CardDescription>Configure who receives notifications</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Alert Level</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Admin User</TableCell>
+                      <TableCell>admin@example.com</TableCell>
+                      <TableCell>+1 (555) 123-4567</TableCell>
+                      <TableCell>
+                        <Badge>All Alerts</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Security Team</TableCell>
+                      <TableCell>security@example.com</TableCell>
+                      <TableCell>+1 (555) 987-6543</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">Critical Only</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">IT Support</TableCell>
+                      <TableCell>it@example.com</TableCell>
+                      <TableCell>—</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">System Alerts</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter>
+                <Button className="ml-auto">Add Recipient</Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    )
+  }

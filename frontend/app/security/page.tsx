@@ -136,7 +136,7 @@ export default function SecurityPage() {
       </div>
 
       <Tabs defaultValue="password-policy">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger value="password-policy">Password Policy</TabsTrigger>
           <TabsTrigger value="two-factor">Two-Factor Auth</TabsTrigger>
           <TabsTrigger value="ip-restrictions">IP Restrictions</TabsTrigger>
@@ -691,7 +691,7 @@ export default function SecurityPage() {
                       <Filter className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Select defaultValue="all">
                       <SelectTrigger className="w-[150px]">
                         <SelectValue placeholder="Filter by action" />
@@ -718,7 +718,7 @@ export default function SecurityPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="rounded-md border">
+                <div className="overflow-auto rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -791,204 +791,6 @@ export default function SecurityPage() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">
-                <FileText className="mr-2 h-4 w-4" /> Export Logs
-              </Button>
-              <Button variant="destructive">Clear Logs</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-  \
-}
-0px]">Time</TableHead>
-                        <TableHead className="w-[150px]">Action</TableHead>
-                        <TableHead className="w-[150px]">User</TableHead>
-                        <TableHead className="w-[120px]">IP Address</TableHead>
-                        <TableHead>Details</TableHead>
-                        <TableHead className="w-[100px]">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-{
-  mockAuditLogs.map((log) => (
-    <TableRow key={log.id}>
-      <TableCell className="font-mono text-xs">
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3 text-muted-foreground" />
-          <span>
-            {log.timestamp.toLocaleDateString()}{" "}
-            {log.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className={
-            log.action.includes("Login")
-              ? "border-blue-500 text-blue-500"
-              : log.action.includes("Password")
-                ? "border-purple-500 text-purple-500"
-                : log.action.includes("User")
-                  ? "border-green-500 text-green-500"
-                  : "border-orange-500 text-orange-500"
-          }
-        >
-          {log.action}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <User className="h-3 w-3 text-muted-foreground" />
-          <span>{log.user}</span>
-        </div>
-      </TableCell>
-      <TableCell className="font-mono text-xs">{log.ip}</TableCell>
-      <TableCell>{log.details || <span className="text-muted-foreground">—</span>}</TableCell>
-      <TableCell>
-        {log.status === "success" ? (
-          <Badge className="bg-green-500">Success</Badge>
-        ) : (
-          <Badge variant="destructive">Failure</Badge>
-        )}
-      </TableCell>
-    </TableRow>
-  ))
-}
-</TableBody>
-                  </Table>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">Showing 8 of 256 entries</div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" disabled>
-                      Previous
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">
-                <FileText className="mr-2 h-4 w-4" /> Export Logs
-              </Button>
-              <Button variant="destructive">Clear Logs</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
-                  <div className="flex items-center gap-2">
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Filter by action" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Actions</SelectItem>
-                        <SelectItem value="login">Login</SelectItem>
-                        <SelectItem value="settings">Settings</SelectItem>
-                        <SelectItem value="user">User Management</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="success">Success</SelectItem>
-                        <SelectItem value="failure">Failure</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline">
-                      <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                    </Button>
-                  </div>
-                </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">Time</TableHead>
-                        <TableHead className="w-[150px]">Action</TableHead>
-                        <TableHead className="w-[150px]">User</TableHead>
-                        <TableHead className="w-[120px]">IP Address</TableHead>
-                        <TableHead>Details</TableHead>
-                        <TableHead className="w-[100px]">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-{
-  mockAuditLogs.map((log) => (
-    <TableRow key={log.id}>
-      <TableCell className="font-mono text-xs">
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3 text-muted-foreground" />
-          <span>
-            {log.timestamp.toLocaleDateString()}{" "}
-            {log.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className={
-            log.action.includes("Login")
-              ? "border-blue-500 text-blue-500"
-              : log.action.includes("Password")
-                ? "border-purple-500 text-purple-500"
-                : log.action.includes("User")
-                  ? "border-green-500 text-green-500"
-                  : "border-orange-500 text-orange-500"
-          }
-        >
-          {log.action}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <User className="h-3 w-3 text-muted-foreground" />
-          <span>{log.user}</span>
-        </div>
-      </TableCell>
-      <TableCell className="font-mono text-xs">{log.ip}</TableCell>
-      <TableCell>{log.details || <span className="text-muted-foreground">—</span>}</TableCell>
-      <TableCell>
-        {log.status === "success" ? (
-          <Badge className="bg-green-500">Success</Badge>
-        ) : (
-          <Badge variant="destructive">Failure</Badge>
-        )}
-      </TableCell>
-    </TableRow>
-  ))
-}
-</TableBody>
-                  </Table>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">Showing 8 of 256 entries</div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" disabled>
-                      Previous
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
             <CardFooter className="flex justify-between">
               <Button variant="outline">
                 <FileText className="mr-2 h-4 w-4" /> Export Logs
