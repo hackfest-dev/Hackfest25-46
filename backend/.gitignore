@@ -1,0 +1,14 @@
+videos
+venv
+uploads
+__pycache__
+app/__pycache__
+uploaded_videos
+.env
+processed_videos
+processed_original
+cameras
+person-attributes-recognition-crossroad-0234.onnx
+person-attributes-recognition-crossroad-0234.onnx.prototxt
+yolov9e.onnx
+yolov9e.onnx.prototxt
